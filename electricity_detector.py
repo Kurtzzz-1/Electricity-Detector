@@ -7,9 +7,12 @@ data = requests.get(
 grid_json = [js for js in data.json()["dat"] if js["par"] == "gd_fre"][0]
 elec_freq = grid_json["val"]
 
-print(elec_freq)
-
 if float(elec_freq) > 0:
+    # Write to cache
+    with open("elec_status.txt", "w") as f:
+        f.write("ON")
+
+    # Send noti
     TOPIC: str = "home_elec_detector_samisamisami"
     TITLE: str = "Electricity is ON!"
     MESSAGE: str = f"Grid Frequency is {elec_freq}"
@@ -20,12 +23,10 @@ if float(elec_freq) > 0:
             headers={"Title": TITLE, "Priority": "high", "Tags": "electric_plug"},
         )
         print(f"Notification sent: '{TITLE}'")
-
-        with open("elec_status.txt") as f:
-            f.write(1)
     except Exception as e:
         print(f"Failed to send notification: {e}")
 
 else:
-    with open("elec_status.txt", 'w') as f:
-        f.write(0)
+    # Write to cache
+    with open("elec_status.txt", "w") as f:
+        f.write("OFF")
